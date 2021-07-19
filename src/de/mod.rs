@@ -1016,6 +1016,9 @@ mod tests {
                     nested: Nested,
                     string: String,
                 },
+                Collection {
+                    project: Project 
+                },
             }
 
             #[derive(Debug, Deserialize, PartialEq)]
@@ -1158,6 +1161,43 @@ mod tests {
                         Node::Flatten {
                             nested: Nested { float: "42".into() },
                             string: "answer".into()
+                        }
+                    );
+                }
+            }
+
+            mod collection_struct {
+                use super::*;
+
+                // TODO elements
+
+                // https://github.com/tafia/quick-xml/issues/288
+                #[test]
+                fn attributes() {
+                    let data: Node = from_str(r##"
+                        <root tag="Collection">
+                        <project name="my_project">
+                            <item name="hello1" source="world1.rs" />
+                            <item name="hello2" source="world2.rs" />
+                        </project>
+                        </root>
+                    "##).unwrap();
+                    assert_eq!(
+                        data,
+                        Node::Collection {
+                            project: Project {
+                                name: "my_project".to_string(),
+                                items: vec![
+                                    Item {
+                                        name: "hello1".to_string(),
+                                        source: "world1.rs".to_string(),
+                                    },
+                                    Item {
+                                        name: "hello2".to_string(),
+                                        source: "world2.rs".to_string(),
+                                    },
+                                ],
+                            },
                         }
                     );
                 }
